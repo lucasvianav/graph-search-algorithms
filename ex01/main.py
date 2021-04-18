@@ -5,12 +5,12 @@ from math import comb
 # N if the graph's number of vertices
 # p is the Erdös-Renyi parameter
 def genErdösRenyiMatrix(N: int, p: float):
-    # The max number of edges is a combination between N and 2
-    maxNoEdges = comb(N, 2)
-    edges = [ int(random() > p) for _ in range(maxNoEdges) ]
-    
-    # The main diagonal is null
-    return [ [ edges[i+j] if i != j else 0 for j in range(N) ] for i in range(N) ]
+    M = [ [ 0 for _ in range(N) ] for _ in range(N) ]
+    for i in range(N):
+        for j in range(N):
+            M[i][j] = M[j][i] = ( int(random() > p) if i > j else M[i][j] )
+
+    return M
 
 
 # Receives user input and generates the matrix
