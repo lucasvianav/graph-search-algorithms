@@ -1,15 +1,16 @@
 from random import random
+from math import comb
 
 # Return a Erdös-Renyi graph's matrix (considering non-directional graphs)
 # N if the graph's number of vertices
 # p is the Erdös-Renyi parameter
 def genErdösRenyiMatrix(N: int, p: float):
-    # Populates the matrix's elements
-    # The main diagonal's null
-    M = [ [ int(random() > p) if i != j else 0 for j in range(N) ] for i in range(N) ]
-
-    # Unites the number of edges between i and j and between j and i
-    return [ [ M[i][j] + M[j][i] for j in range(N) ] for i in range(N) ]
+    # The max number of edges is a combination between N and 2
+    maxNoEdges = comb(N, 2)
+    edges = [ int(random() > p) for _ in range(maxNoEdges) ]
+    
+    # The main diagonal is null
+    return [ [ edges[i+j] if i != j else 0 for j in range(N) ] for i in range(N) ]
 
 
 # Receives user input and generates the matrix
