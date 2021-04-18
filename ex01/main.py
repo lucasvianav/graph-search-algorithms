@@ -4,19 +4,12 @@ from random import random
 # N if the graph's number of vertices
 # p is the Erdös-Renyi parameter
 def genErdösRenyiMatrix(N: int, p: float):
-    # The lower half of a matrix (excluding the main diagonal) has (N^2-N)/2 elements
-    noElements = int((N**2-N)/2)
-
-    elements = [ 0 for _ in range(noElements) ]
-
     # Populates the matrix's elements
-    # No need to do it for the main diagonal because it's gonna be null
-    for i in range(2*noElements): elements[i if i < noElements else i-noElements] += 1 if random() > p else 0
+    # The main diagonal's null
+    M = [ [ int(random() > p) if i != j else 0 for j in range(N) ] for i in range(N) ]
 
-    # Generates the symmetrical matrix
-    M = [ [ elements[max(i,j)] if i != j else 0 for j in range(N) ] for i in range(N) ]
-
-    return M
+    # Unites the number of edges between i and j and between j and i
+    return [ [ M[i][j] + M[j][i] for j in range(N) ] for i in range(N) ]
 
 
 # Receives user input and generates the matrix
