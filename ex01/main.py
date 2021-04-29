@@ -1,5 +1,5 @@
 from random import random
-from math import comb
+from functools import reduce
 
 class Graph:
     # Generates a Erdös-Renyi graph's matrix (considering non-directional graphs)
@@ -33,8 +33,8 @@ class Graph:
         for row in self.matrix:
             if any(x > 0 for x in row): return True
 
-    # def getVertexDegree(self, vertexIndex):
-        
+    def getVertexDegree(self, vertexIndex):
+        return reduce(lambda acc, cur: acc+cur, self.matrix[vertexIndex], 0) if vertexIndex < len(self.matrix) else None
 
 # Receives user input and generates the matrix
 # noVertices = int(input('Insert number of vertices (N): '))
