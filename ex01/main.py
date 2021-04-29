@@ -30,13 +30,26 @@ class Graph:
     def getMatrix(self): return self.matrix
     
     def existsEdge(self):
+        # If an edge is found in any row
+        # returns True
         for row in self.matrix:
             if any(x > 0 for x in row): return True
+            
+        # If no edge is found, returns False
+        return False
 
     def getVertexDegree(self, vertexIndex):
+        # Sums all edges from the vertex's row
         return reduce(lambda acc, cur: acc+cur, self.matrix[vertexIndex], 0) if vertexIndex < len(self.matrix) else None
 
 # Receives user input and generates the matrix
-# noVertices = int(input('Insert number of vertices (N): '))
-# parameter = float(input('Insert the Erdös-Renyi parameter (p): '))
-# matrix = genErdösRenyiMatrix(noVertices, parameter)
+noVertices = int(input('Insert number of vertices (N): '))
+parameter = float(input('Insert the Erdös-Renyi parameter (p): '))
+graph = Graph(noVertices, parameter)
+
+print(graph)
+print(graph.existsEdge())
+
+vertex = int(input('Select vertex do get it\'s degree: '))
+
+print(graph.getVertexDegree(vertex))
