@@ -1,7 +1,6 @@
 
 from random import random
 from functools import reduce
-
 class Graph:
     # Generates a Erdös-Renyi graph's matrix (considering non-directional graphs)
     # N if the graph's number of vertices
@@ -23,8 +22,8 @@ class Graph:
 
         for i in range(self.N):
             string += '[  '
-                    for j in range(self.N): string += str(self.matrix[i][j]) + '  '
-                    string += ']\n'
+            for j in range(self.N): string += str(self.matrix[i][j]) + '  '
+            string += ']\n'
 
             return string
 
