@@ -6,8 +6,8 @@ parameter = float(input('Insert the Erdös-Renyi parameter (p): '))
 graph = Graph(noVertices, parameter)
 
 print(graph)
-print(graph.existsEdge())
+print(graph.hasEdge())
 
-vertex = int(input('Select vertex do get it\'s degree: '))
+vertex = int(input('Select vertex to get it\'s degree: '))
 
 print(graph.getVertexDegree(vertex))
