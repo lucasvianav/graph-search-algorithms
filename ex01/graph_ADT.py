@@ -126,7 +126,7 @@ class Graph:
             None, if not.
         """
 
-        return self.getVertexDegree(self, vertexPosition), self.getAdjacentVertices(vertexPosition) if 1 <= vertexPosition <= self.N else None
+        return self.getVertexDegree(vertexPosition), self.getAdjacentVertices(vertexPosition) if 1 <= vertexPosition <= self.N else None
 
     def areAdjacent(self, i: int, j: int) -> bool:
         """
