@@ -7,14 +7,11 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +1 ex01/graph_ADT.py
-badd +1 ex01/main.py
-badd +2 graph_ADT.py
-badd +34 graph.py
+badd +0 .gitignore
 argglobal
 %argdel
-$argadd ~/USP/disciplinas/2021/SCC0530_IA
-edit graph.py
+$argadd .gitignore
+edit .gitignore
 set splitbelow splitright
 wincmd t
 set winminheight=0
@@ -30,13 +27,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 34 - ((33 * winheight(0) + 23) / 46)
+let s:l = 1 - ((0 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-34
-normal! 0
-lcd ~/USP/disciplinas/2021/SCC0530_IA
+1
+normal! 011|
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
