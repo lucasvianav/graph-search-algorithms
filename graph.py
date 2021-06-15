@@ -61,7 +61,7 @@ class Graph:
 
     def breadthFirstSearch(self, root: int, target: int) -> list:
         """
-        The function performs a Breadth First Search, returning the list of distances between the node at "index" and every other node the graph has as well of the list of all visited nodes (in the order they were visited).
+        The function performs a Breadth First Search, returning the path that links the "root" node to the "target" node.
 
         Parameters:
             root (int): The initial node's index.
@@ -86,26 +86,25 @@ class Graph:
             # currently being analyzed node
             current = path[-1]
 
-            # if the current node was not analyzed yet
-            if current not in history:
-                # appends the current node to the history
-                history.append(current)
+            # appends the current node to the history
+            history.append(current)
 
-                # gets the current node's adjacency list
-                adjacencies = self.adjacencies[current]
+            # gets the current node's adjacency list
+            adjacencies = [ node for node in self.adjacencies[current] if node not in history ]
 
-                # loops through each adjacent node, enqueuing a new path that
-                # ends in it, as well as checking if the target was found
-                for node in adjacencies:
-                    queue.append(path + [ node ])
-                    if node == target: return queue[-1]
+            # if the target is found
+            if target in adjacencies: return path + [ target ]
+
+            # loops through each adjacent node,
+            # enqueuing a new path that ends in it
+            queue.extend([ path + [ node ] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []
 
     def depthFirstSearch(self, root: int, target: int) -> list:
         """
-        The function performs a Breadth First Search, returning the list of distances between the node at "index" and every other node the graph has as well of the list of all visited nodes (in the order they were visited).
+        The function performs a Depth First Search, returning the path that links the "root" node to the "target" node.
 
         Parameters:
             root (int): The initial node's index.
@@ -140,7 +139,7 @@ class Graph:
             if target in adjacencies: return path + [ target ]
 
             # loops through each adjacent node,
-            # enqueuing a new path that ends in it
+            # stacking a new path that ends in it
             stack.extend([ path + [ node ] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
