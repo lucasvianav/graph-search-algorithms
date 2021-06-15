@@ -57,6 +57,7 @@ class Graph:
         self.nNodes = nNodes
         self.nodes = nodes
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
+        self.edges = edges
 
     def breadthFirstSearch(self, root: int, target: int) -> list:
         """
@@ -98,6 +99,49 @@ class Graph:
                 for node in adjacencies:
                     queue.append(path + [ node ])
                     if node == target: return queue[-1]
+
+        # if it got out of the loop, it means no path was found
+        return []
+
+    def depthFirstSearch(self, root: int, target: int) -> list:
+        """
+        The function performs a Breadth First Search, returning the list of distances between the node at "index" and every other node the graph has as well of the list of all visited nodes (in the order they were visited).
+
+        Parameters:
+            root (int): The initial node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        # list of all paths enqued (the next node to
+        # be analyzed is the last one on each path)
+        # stack --> LIFO
+        stack = [[ root ]]
+
+        # list of all nodes already analyzed
+        history = []
+
+        # while the stack is not empty
+        while stack:
+            # gets the current path
+            path = stack.pop()
+
+            # currently being analyzed node
+            current = path[-1]
+
+            # appends the current node to the history
+            history.append(current)
+
+            # gets the current node's adjacency list (excluding nodes that were already analyzed)
+            adjacencies = [ node for node in self.adjacencies[current] if node not in history ]
+
+            # if the target is found
+            if target in adjacencies: return path + [ target ]
+
+            # loops through each adjacent node,
+            # enqueuing a new path that ends in it
+            stack.extend([ path + [ node ] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []
