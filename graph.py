@@ -22,18 +22,23 @@ class Graph:
             nEdges (int): number of edges to be generated from each node.
         """
 
+        # nodes' 2D coordinates (x, y)
         nodes = [ ( nNodes*random(), nNodes*random() ) for _ in range(nNodes) ]
+
+        # adjacency matrix
+        # (i rows and j columns are nodes and the [i][j]
+        # element is the number of edjes between node i and j)
         edges = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
 
         def findClosestNodes(current: tuple) -> list:
             """
-            Calculates the node that's closest from the current one.
+            Calculates the "nEdges" nodes that are closest from the current one. The comparison is based on the cartesian distance.
 
             Parameters:
                 current (int): the current node' index in the "nodes" list.
 
             Return value:
-                int: the closes node' index in the "nodes list".
+                list<int>: the closest nodes' index in the "nodes list" (from closer to farther).
             """
 
             # list of distances between all nodes and the current one
@@ -46,6 +51,7 @@ class Graph:
             # sorts by distance
             return sorted(distancies, key=lambda node: node[1])[0:nEdges]
 
+        # generates the edges
         for current_index, current_node in enumerate(nodes):
             # gets "nEdges" closest nodes
             closest = findClosestNodes(current_node)
@@ -54,14 +60,18 @@ class Graph:
             for node_index, _ in closest:
                 edges[current_index][node_index] = edges[node_index][current_index] = 1
 
-        self.nNodes = nNodes
-        self.nodes = nodes
-        self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
-        self.edges = edges
+        # # probably not very useful
+        # self.nodes = nodes
+        # self.edges = edges
 
+        # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
+        self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
+        self.nNodes = nNodes
+
+    # private method
     def __breadth_depth_search_template(self, breadthFirst: bool, root: int, target: int) -> list:
         """
-        The function performs a Breadth First Search or a Depth First Search, returning the path that links the "root" node to the "target" node.
+        Performs a Breadth First Search or a Depth First Search, returning the path that links the "root" node to the "target" node.
 
         Parameters:
             beadthFirst (bool): true to perform a Breadth First Search, false to perform a Depth First Search.
