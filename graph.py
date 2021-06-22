@@ -2,6 +2,18 @@ from math import sqrt
 from random import random
 
 
+class ASearchStructNode:
+    def __init__(self, heuristic: int, cost_of_path: int, id: int, path: list):
+        self.score = heuristic + cost_of_path
+        # heuristic = underguess of how much would take to get to the objective
+        self.heuristic = heuristic
+        # cost_of_path = total cost until getting to the node
+        self.cost_of_path = cost_of_path
+        # id = id of the node
+        self.id = id
+        # path_to_node records the path until reaching the node, list(path) to clone the list so that modifying the first do not affect the list on the node
+        self.path_to_node = list(path)
+
 class Graph:
     """
     This is a class for testing search algorithms for graphs.
@@ -142,4 +154,72 @@ class Graph:
 
         # performs the Depth First Search
         return self.__breadth_depth_search_template(False, root, target)
+    # removes nodes that were found 2 times but have different scores, maintaining the onee with least score
+    def __remove_dup_leaf(self, leaves):
+        for i in range(len(leaves)):
+            for j in range(len(leaves)):
+                if i != j and leaves[i].id == leaves[j].id:
+                    if leaves[i].score > leaves[j].score:
+                        leaves.pop(i)
+                    else:
+                        leaves.pop(j)
+                    return self.__remove_dup_leaf(leaves)
+        return leaves
+
+    def __node_in_path(self, node: int, path: list):
+        for i in range(len(path)):
+            if node == path[i].id:
+                return True
+        return False
+
+    def __remove_leaf(self, leaf: list, leaves: list):
+        for i in range(len(leaves)):
+            if leaves[i].id == leaf.id:
+                leaves.pop(i)
+                return leaves
+        return leaves
+
+    def aAsteriskSearch(self, root: int, target: int) -> list:
+        path = []
+        # leaves are all the leaves of the tree
+        leaves = []
+        # initializes the root node
+        root_node = ASearchStructNode(0, 0, root, path)
+        path.append(root_node)
+        while path[-1].id != target:
+            parent_node = path[-1]
+            # expands the leaves of the tree
+            for i in self.adjacencies[parent_node.id-1]: # -1 because is array pos
+                if not self.__node_in_path(i, path):
+                    heuristic = 0
+                    leaf = ASearchStructNode(heuristic, len(path), i, path)
+                    leaves.append(leaf)
+
+            # remove duplicated nodes that were found on different paths
+            leaves = self.__remove_dup_leaf(leaves)
+
+            # choosing the leaf with the least score
+            leaf_to_expand = leaves[0]
+            smallest_score = leaves[0].score
+            for leaf in leaves:
+                if leaf.score < smallest_score:
+                    smallest_score = leaf.score
+                    leaf_to_expand = leaf
+            # updating the path to the one of the current leaf
+            path = leaf_to_expand.path_to_node
+
+            # adding the leaf to the path
+            path.append(leaf_to_expand)
+
+            # removing the now visited ex-leaf
+            leaves = self.__remove_leaf(leaf_to_expand, leaves)
+
+
+
+        # path_of_ids is the path with the numbers of the nod and not the class A_search_struct_node
+        path_of_ids = []
+        for node in path:
+            path_of_ids.append(node.id)
+        return path_of_ids
+
 
