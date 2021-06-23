@@ -50,7 +50,7 @@ class Graph:
                 current (int): the current node' index in the "nodes" list.
 
             Return value:
-                list<int>: the closest nodes' index in the "nodes list" (from closer to farther).
+                list<int>: the closest nodes' index in the "nodes list" (from closer to further).
             """
 
             # list of distances between all nodes and the current one
@@ -62,6 +62,42 @@ class Graph:
 
             # sorts by distance
             return sorted(distancies, key=lambda node: node[1])[0:nEdges]
+
+        def euc_distance(node1: int, node2: int):
+            """
+            finds the euclidian distance between two nodes
+
+            Parameters:
+                two nodes to be compared
+
+            return:
+                    The distance between the nodes
+            """
+
+            # nodes[a][0] -> x coordenate of a
+            # nodes[a][1] -> y coordenate of a
+            distance = sqrt((nodes[node1][0] - nodes[node2][0])**2 + (nodes[node1][1] - nodes[node2][1])**2)
+
+            # returns the result
+            return distance
+
+        def man_distance(node1: int, node2: int):
+            """
+            finds the manhattan distance between two nodes
+
+            Parameters:
+                two nodes to be compared
+
+            return:
+                    The distance between the nodes
+            """
+
+            # nodes[a][0] -> x coordenate of a
+            # nodes[a][1] -> y coordenate of a
+            distance = abs(nodes[node1][0] - nodes[node2][0]) + abs(nodes[node1][1] - nodes[node2][1])
+
+            # returns the result
+            return distance
 
         # generates the edges
         for current_index, current_node in enumerate(nodes):
@@ -79,6 +115,8 @@ class Graph:
         # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
         self.nNodes = nNodes
+        self.euc_distances = [[euc_distance(i, j) for i in range(nNodes)] for j in range(nNodes)]
+        self.man_distances = [[man_distance(i, j) for i in range(nNodes)] for j in range(nNodes)]
 
     # private method
     def __breadth_depth_search_template(self, breadthFirst: bool, root: int, target: int) -> list:
@@ -154,6 +192,9 @@ class Graph:
 
         # performs the Depth First Search
         return self.__breadth_depth_search_template(False, root, target)
+
+
+
     # removes nodes that were found 2 times but have different scores, maintaining the onee with least score
     def __remove_dup_leaf(self, leaves):
         for i in range(len(leaves)):
@@ -179,7 +220,17 @@ class Graph:
                 return leaves
         return leaves
 
-    def aAsteriskSearch(self, root: int, target: int) -> list:
+    def ASearch(self, root: int, target: int, asterisk: bool) -> list:
+        """
+        The function performs an A or A* algorithm Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
         path = []
         # leaves are all the leaves of the tree
         leaves = []
@@ -191,7 +242,13 @@ class Graph:
             # expands the leaves of the tree
             for i in self.adjacencies[parent_node.id-1]: # -1 because is array pos
                 if not self.__node_in_path(i, path):
-                    heuristic = 0
+                    if asterisk: # if its the A* algorithm, the euclidian distance will be used
+                        # finds the euclidian distance between the current node and the target
+                        heuristic = self.euc_distances[i-1][target-1]
+                    else:       # if its the A algorithm
+                        # finds the manhattan distance between the current node and the target
+                        heuristic = self.man_distances[i-1][target-1]
+                    # creates the leaf node
                     leaf = ASearchStructNode(heuristic, len(path), i, path)
                     leaves.append(leaf)
 
@@ -214,12 +271,41 @@ class Graph:
             # removing the now visited ex-leaf
             leaves = self.__remove_leaf(leaf_to_expand, leaves)
 
-
-
         # path_of_ids is the path with the numbers of the nod and not the class A_search_struct_node
         path_of_ids = []
         for node in path:
             path_of_ids.append(node.id)
         return path_of_ids
 
+    def BestFirstSearch(self, root, target):
+        """
+        The function performs a Best First Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+        open = [root]
+        closed = []
+        while not closed or closed[-1] != target:
+            # if the target was not found
+            if not open:
+                return []
+            smallest_node = open[0]
+            for i in open:
+                # checks which node is most likely to go to path
+                if self.euc_distances[i-1][target-1] < self.euc_distances[smallest_node-1][target-1]: # -1 to transform to array pos
+                    smallest_node = i
+            # puts the smallest_node in the closed list if its not already there
+            if smallest_node not in closed:
+                closed.append(smallest_node)
+            open.remove(smallest_node)
+            # puts all of the nodes that were not checked before on the list to be checked
+            for i in self.adjacencies[smallest_node-1]:
+                if i not in closed:
+                    open.append(i)
+        return closed
 
