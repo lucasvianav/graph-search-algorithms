@@ -1,9 +1,10 @@
 from math import sqrt
 from random import random
+import time
 
 
 class ASearchStructNode:
-    def __init__(self, heuristic: int, cost_of_path: int, id: int, path: list):
+    def __init__(self, heuristic: float, cost_of_path: int, id: int, path: list):
         self.score = heuristic + cost_of_path
         # heuristic = underguess of how much would take to get to the objective
         self.heuristic = heuristic
@@ -195,17 +196,18 @@ class Graph:
 
 
 
-    # removes nodes that were found 2 times but have different scores, maintaining the onee with least score
-    def __remove_dup_leaf(self, leaves):
-        for i in range(len(leaves)):
-            for j in range(len(leaves)):
-                if i != j and leaves[i].id == leaves[j].id:
+    # removes nodes that were found 2 times but have different scores, maintaining the one with least score
+    def __remove_dup_leaf(self, start, leaves):
+        for i in range(start, len(leaves)):
+            for j in range(i+1, len(leaves)):
+                if leaves[i].id == leaves[j].id:
                     if leaves[i].score > leaves[j].score:
                         leaves.pop(i)
                     else:
                         leaves.pop(j)
-                    return self.__remove_dup_leaf(leaves)
+                    return self.__remove_dup_leaf(i, leaves)
         return leaves
+
 
     def __node_in_path(self, node: int, path: list):
         for i in range(len(path)):
@@ -253,7 +255,7 @@ class Graph:
                     leaves.append(leaf)
 
             # remove duplicated nodes that were found on different paths
-            leaves = self.__remove_dup_leaf(leaves)
+            leaves = self.__remove_dup_leaf(0, leaves)
 
             # choosing the leaf with the least score
             leaf_to_expand = leaves[0]
@@ -309,3 +311,43 @@ class Graph:
                     open.append(i)
         return closed
 
+
+v = [500, 5000, 10000]
+k = [3, 5, 7]
+paths = [[[] for _ in range(5)] for _ in range(9)]
+times = [[0 for _ in range(5)] for _ in range(9)]
+i = 0
+names = ["Breadth", "Depth", "A", "A*", "Best first"]
+for nodes in v:
+    for edges in k:
+        grafo = Graph(nodes, edges)
+        start_time = time.time()
+        paths[0][i] = grafo.breadthFirstSearch(1, nodes)
+        times[0][i] = time.time() - start_time
+        print(f"done {names[i]} {nodes} {edges}\n")
+        start_time = time.time()
+        paths[1][i] = grafo.depthFirstSearch(1, nodes)
+        times[1][i] = time.time() - start_time
+        print(f"done depth {nodes} {edges}\n")
+        start_time = time.time()
+        paths[2][i] = grafo.ASearch(1, nodes, False)
+        times[2][i] = time.time() - start_time
+        print(f"done A {nodes} {edges}\n")
+        start_time = time.time()
+        paths[3][i] = grafo.ASearch(1, nodes, True)
+        times[3][i] = time.time() - start_time
+        print(f"done A* {nodes} {edges}\n")
+        start_time = time.time()
+        paths[4][i] = grafo.BestFirstSearch(1, nodes)
+        times[4][i] = time.time() - start_time
+        print(f"done Best First {nodes} {edges}\n")
+        i += 1
+i = 0
+for i in range(len(names)):
+    for nodes in v:
+        for edges in k:
+            print(f"{names[i]} Search:\n"
+                  f"v = {nodes} k = {edges}\n"
+                  f"path: {paths[0][i]}\n"
+                  f"time: {times[0][i]}\n")
+            i += 1
