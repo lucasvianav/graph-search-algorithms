@@ -131,7 +131,7 @@ class Graph:
         # list of all nodes already analyzed
         history = []
 
-        # while the to_analyze is not empty
+        # while to_analyze is not empty
         while to_analyze:
             # gets the current path
             path = to_analyze.pop(0 if breadthFirst else -1)
@@ -281,26 +281,34 @@ class Graph:
         Return value:
             list<int>: path starting at "root" and ending at "target".
         """
-        open = [root]
-        closed = []
-        while not closed or closed[-1] != target:
-            # if the target was not found
-            if not open:
-                return []
-            smallest_node = open[0]
-            for i in open:
-                # checks which node is most likely to go to path
-                if self.euclidian_distances[i-1][target-1] < self.euclidian_distances[smallest_node-1][target-1]: # -1 to transform to array pos
-                    smallest_node = i
-            # puts the smallest_node in the closed list if its not already there
-            if smallest_node not in closed:
-                closed.append(smallest_node)
-            open.remove(smallest_node)
-            # puts all of the nodes that were not checked before on the list to be checked
-            for i in self.adjacencies[smallest_node-1]:
-                if i not in closed:
-                    open.append(i)
-        return closed
+
+        to_analyze   = [ root ]
+        history = []
+
+        # while to_analyze is not empty
+        while to_analyze:
+
+            # if all nodes were analyzed and the target was not found
+            if not to_analyze: return []
+
+            # closest node to the target that's yet to be analyzed
+            # (it's the one most likely be on the best path)
+            closest_node_index = to_analyze.index(min([ self.euclidian_distances[target][node] for node in to_analyze ]))
+            closest_node       = to_analyze[closest_node_index]
+
+            if closest_node not in history: history.append(closest_node)
+            to_analyze.remove(closest_node)
+
+            # gets the current node's adjacency list
+            adjacencies = [ node for node in self.adjacencies[closest_node] if node not in history ]
+
+            # if the target is found
+            if target in adjacencies: return history + [ target ]
+
+            to_analyze.extend(adjacencies)
+
+        # if it got out of the loop, it means no path was found
+        return []
 
 
 v = [500, 5000, 10000]
