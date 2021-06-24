@@ -291,9 +291,12 @@ class Graph:
             # if all nodes were analyzed and the target was not found
             if not to_analyze: return []
 
+            # closest node to the target that's yet to be analyzed's index
+            # it's the node that have the lowest euclidian distance
+            closest_node_index = to_analyze.index(min([ self.euclidian_distances[target][node] for node in to_analyze ]))
+
             # closest node to the target that's yet to be analyzed
             # (it's the one most likely be on the best path)
-            closest_node_index = to_analyze.index(min([ self.euclidian_distances[target][node] for node in to_analyze ]))
             closest_node       = to_analyze[closest_node_index]
 
             if closest_node not in history: history.append(closest_node)
