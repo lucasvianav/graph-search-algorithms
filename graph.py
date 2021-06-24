@@ -1,4 +1,4 @@
-from math import sqrt
+from math import dist, sqrt
 from random import random
 import time
 
@@ -41,83 +41,74 @@ class Graph:
         # adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the number of edjes between node i and j)
-        edges = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
+        edges               = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
 
-        def findClosestNodes(current: tuple) -> list:
+        # distances matrix
+        # (i rows and j columns are nodes and the [i][j]
+        # element is the distance between node i and j)
+        euclidian_distances = [ [] for _ in range(nNodes) ]
+        manhattan_distances = [ [] for _ in range(nNodes) ]
+
+        def euclidianDistance(i: int, j: int):
             """
-            Calculates the "nEdges" nodes that are closest from the current one. The comparison is based on the cartesian distance.
+            Calculates the Euclidian Distance between two nodes.
 
             Parameters:
-                current (int): the current node' index in the "nodes" list.
+                i (int): the node's index in the "nodes" list.
+                j (int): the node's index in the "nodes" list.
 
-            Return value:
-                list<int>: the closest nodes' index in the "nodes list" (from closer to further).
+            return:
+                float: the Euclidian Distance between the two nodes.
             """
 
-            # list of distances between all nodes and the current one
-            # (does not include the distance with itself)
-            distancies = [
-                ( i, sqrt((node[0] - current[0])**2 + (node[1] - current[1])**2) )
-                for i, node in enumerate(nodes) if node != current
+            return dist(nodes[i], nodes[j])
+
+        def manhattanDistance(i: int, j: int):
+            """
+            Calculates the Manhattan Distance between two nodes.
+
+            Parameters:
+                i (int): the node's index in the "nodes" list.
+                j (int): the node's index in the "nodes" list.
+
+            return:
+                float: the Manhattan Distance between the two nodes.
+            """
+
+            # nodes[a][0] -> x coordenate of a
+            # nodes[a][1] -> y coordenate of a
+            return abs(nodes[i][0] - nodes[j][0]) + abs(nodes[i][1] - nodes[j][1])
+
+        # generates the edges and calculates the distances
+        for current_index in range(nNodes):
+            euclidian_distances[current_index] = [
+                euclidian_distances[node][current_index] if (node < current_index)
+                else euclidianDistance(current_index, node)
+                for node in range(nNodes)
             ]
 
-            # sorts by distance
-            return sorted(distancies, key=lambda node: node[1])[0:nEdges]
+            manhattan_distances[current_index] = [
+                manhattan_distances[node][current_index] if (node < current_index)
+                else manhattanDistance(current_index, node)
+                for node in range(nNodes)
+            ]
 
-        def euc_distance(node1: int, node2: int):
-            """
-            finds the euclidian distance between two nodes
-
-            Parameters:
-                two nodes to be compared
-
-            return:
-                    The distance between the nodes
-            """
-
-            # nodes[a][0] -> x coordenate of a
-            # nodes[a][1] -> y coordenate of a
-            distance = sqrt((nodes[node1][0] - nodes[node2][0])**2 + (nodes[node1][1] - nodes[node2][1])**2)
-
-            # returns the result
-            return distance
-
-        def man_distance(node1: int, node2: int):
-            """
-            finds the manhattan distance between two nodes
-
-            Parameters:
-                two nodes to be compared
-
-            return:
-                    The distance between the nodes
-            """
-
-            # nodes[a][0] -> x coordenate of a
-            # nodes[a][1] -> y coordenate of a
-            distance = abs(nodes[node1][0] - nodes[node2][0]) + abs(nodes[node1][1] - nodes[node2][1])
-
-            # returns the result
-            return distance
-
-        # generates the edges
-        for current_index, current_node in enumerate(nodes):
-            # gets "nEdges" closest nodes
-            closest = findClosestNodes(current_node)
+            # "nEdges" closest nodes
+            closest = [
+                ( node, euclidian_distances[current_index][node] )
+                for node in range(nNodes) if node != current_index
+            ]
 
             # for each of the closest nodes, create an edge between them
             for node_index, _ in closest:
                 edges[current_index][node_index] = edges[node_index][current_index] = 1
 
-        # # probably not very useful
-        # self.nodes = nodes
-        # self.edges = edges
-
         # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
-        self.nNodes = nNodes
-        self.euc_distances = [[euc_distance(i, j) for i in range(nNodes)] for j in range(nNodes)]
-        self.man_distances = [[man_distance(i, j) for i in range(nNodes)] for j in range(nNodes)]
+
+        self.nNodes              = nNodes
+        self.euclidian_distances = euclidian_distances
+        self.manhattan_distances = manhattan_distances
 
     # private method
     def __breadth_depth_search_template(self, breadthFirst: bool, root: int, target: int) -> list:
@@ -246,10 +237,10 @@ class Graph:
                 if not self.__node_in_path(i, path):
                     if asterisk: # if its the A* algorithm, the euclidian distance will be used
                         # finds the euclidian distance between the current node and the target
-                        heuristic = self.euc_distances[i-1][target-1]
+                        heuristic = self.euclidian_distances[i-1][target-1]
                     else:       # if its the A algorithm
                         # finds the manhattan distance between the current node and the target
-                        heuristic = self.man_distances[i-1][target-1]
+                        heuristic = self.manhattan_distances[i-1][target-1]
                     # creates the leaf node
                     leaf = ASearchStructNode(heuristic, len(path), i, path)
                     leaves.append(leaf)
@@ -299,7 +290,7 @@ class Graph:
             smallest_node = open[0]
             for i in open:
                 # checks which node is most likely to go to path
-                if self.euc_distances[i-1][target-1] < self.euc_distances[smallest_node-1][target-1]: # -1 to transform to array pos
+                if self.euclidian_distances[i-1][target-1] < self.euclidian_distances[smallest_node-1][target-1]: # -1 to transform to array pos
                     smallest_node = i
             # puts the smallest_node in the closed list if its not already there
             if smallest_node not in closed:
