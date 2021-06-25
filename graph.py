@@ -2,18 +2,6 @@ from math import dist
 from random import random
 
 
-class ASearchStructNode:
-    def __init__(self, heuristic: float, cost_of_path: int, id: int, path: list):
-        self.score = heuristic + cost_of_path
-        # heuristic = underguess of how much would take to get to the objective
-        self.heuristic = heuristic
-        # cost_of_path = total cost until getting to the node
-        self.cost_of_path = cost_of_path
-        # id = id of the node
-        self.id = id
-        # path_to_node records the path until reaching the node, list(path) to clone the list so that modifying the first do not affect the list on the node
-        self.path_to_node = list(path)
-
 class Graph:
     """
     This is a class for testing search algorithms for graphs.
@@ -110,7 +98,6 @@ class Graph:
         self.euclidian_distances = euclidian_distances
         self.manhattan_distances = manhattan_distances
 
-    # private method
     def __template_first_search(self, search_type: str, root: int, target: int) -> list:
         """
         Performs a Breadth First Search or a Depth First Search, returning the path that links the "root" node to the "target" node.
@@ -161,6 +148,7 @@ class Graph:
 
         # if it got out of the loop, it means no path was found
         return []
+
 
 
     def breadthFirstSearch(self, root: int, target: int) -> list:
@@ -214,24 +202,23 @@ class Graph:
     def __remove_dup_leaf(self, start, leaves):
         for i in range(start, len(leaves)):
             for j in range(i+1, len(leaves)):
-                if leaves[i].id == leaves[j].id:
-                    if leaves[i].score > leaves[j].score:
+                if leaves[i]['id'] == leaves[j]['id']:
+                    if leaves[i]['score'] > leaves[j]['score']:
                         leaves.pop(i)
                     else:
                         leaves.pop(j)
                     return self.__remove_dup_leaf(i, leaves)
         return leaves
 
-
     def __node_in_path(self, node: int, path: list):
         for i in range(len(path)):
-            if node == path[i].id:
+            if node == path[i]['id']:
                 return True
         return False
 
-    def __remove_leaf(self, leaf: list, leaves: list):
+    def __remove_leaf(self, leaf: dict, leaves: list):
         for i in range(len(leaves)):
-            if leaves[i].id == leaf.id:
+            if leaves[i]['id'] == leaf['id']:
                 leaves.pop(i)
                 return leaves
         return leaves
@@ -247,16 +234,34 @@ class Graph:
         Return value:
             list<int>: path starting at "root" and ending at "target".
         """
+
+        def ASearchStructNode(heuristic: float, cost_of_path: int, id: int, path: list):
+            return {
+                "score": heuristic + cost_of_path,
+
+                # heuristic = underguess of how much would take to get to the objective
+                "heuristic": heuristic,
+
+                # cost_of_path = total cost until getting to the node
+                "cost_of_path": cost_of_path,
+
+                # id = id of the node
+                "id": id,
+
+                # path_to_node records the path until reaching the node, list(path) to clone the list so that modifying the first do not affect the list on the node
+                "path_to_node": list(path)
+            }
+
         path = []
         # leaves are all the leaves of the tree
         leaves = []
         # initializes the root node
         root_node = ASearchStructNode(0, 0, root, path)
         path.append(root_node)
-        while path[-1].id != target:
+        while path[-1]['id'] != target:
             parent_node = path[-1]
             # expands the leaves of the tree
-            for i in self.adjacencies[parent_node.id-1]: # -1 because is array pos
+            for i in self.adjacencies[parent_node['id']-1]: # -1 because is array pos
                 if not self.__node_in_path(i, path):
                     if asterisk: # if its the A* algorithm, the euclidian distance will be used
                         # finds the euclidian distance between the current node and the target
@@ -273,13 +278,13 @@ class Graph:
 
             # choosing the leaf with the least score
             leaf_to_expand = leaves[0]
-            smallest_score = leaves[0].score
+            smallest_score = leaves[0]['score']
             for leaf in leaves:
-                if leaf.score < smallest_score:
-                    smallest_score = leaf.score
+                if leaf['score'] < smallest_score:
+                    smallest_score = leaf['score']
                     leaf_to_expand = leaf
             # updating the path to the one of the current leaf
-            path = leaf_to_expand.path_to_node
+            path = leaf_to_expand['path_to_node']
 
             # adding the leaf to the path
             path.append(leaf_to_expand)
