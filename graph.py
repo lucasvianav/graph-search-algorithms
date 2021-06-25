@@ -111,18 +111,20 @@ class Graph:
         self.manhattan_distances = manhattan_distances
 
     # private method
-    def __breadth_depth_search_template(self, breadthFirst: bool, root: int, target: int) -> list:
+    def __template_first_search(self, search_type: str, root: int, target: int) -> list:
         """
         Performs a Breadth First Search or a Depth First Search, returning the path that links the "root" node to the "target" node.
 
         Parameters:
-            beadthFirst (bool): true to perform a Breadth First Search, false to perform a Depth First Search.
+            serach_type (str): 'breadth' to perform a Breadth First Search, 'depth' to perform a Depth First Search or 'best' to perform a Best First Search.
             root (int): the initial node's index.
             target (int): the target node's index.
 
         Return value:
             list<int>: path starting at "root" and ending at "target".
         """
+
+        if search_type not in [ 'breadth', 'depth', 'best' ]: return []
 
         # list of all paths enqued (the next node to
         # be analyzed is the last one on each path)
@@ -134,7 +136,7 @@ class Graph:
         # while to_analyze is not empty
         while to_analyze:
             # gets the current path
-            path = to_analyze.pop(0 if breadthFirst else -1)
+            path = to_analyze.pop(0 if search_type == 'breadth' else -1)
 
             # currently being analyzed node
             current = path[-1]
@@ -148,12 +150,18 @@ class Graph:
             # if the target is found
             if target in adjacencies: return path + [ target ]
 
+            # sorts adjacency list from closest to farthest node
+            # (only if it's performing a Best First Search)
+            if search_type == 'best':
+                adjacencies.sort(key=lambda node: self.euclidian_distances[current][node])
+
             # loops through each adjacent node, marking
             # a new path that ends in it to be analyzed
             to_analyze.extend([ path + [ node ] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []
+
 
     def breadthFirstSearch(self, root: int, target: int) -> list:
         """
@@ -168,7 +176,7 @@ class Graph:
         """
 
         # performs the Breadth First Search
-        return self.__breadth_depth_search_template(True, root, target)
+        return self.__template_first_search('breadth', root, target)
 
     def depthFirstSearch(self, root: int, target: int) -> list:
         """
@@ -183,7 +191,22 @@ class Graph:
         """
 
         # performs the Depth First Search
-        return self.__breadth_depth_search_template(False, root, target)
+        return self.__template_first_search('best', root, target)
+
+    def bestFirstSearch(self, root, target):
+        """
+        The function performs a Best First Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        # performs the Best First Search
+        return self.__template_first_search('best', root, target)
 
 
 
@@ -269,58 +292,4 @@ class Graph:
         for node in path:
             path_of_ids.append(node.id)
         return path_of_ids
-
-    def BestFirstSearch(self, root, target):
-        """
-        The function performs a Best First Search, returning the path that links the "root" node to the "target" node.
-
-        Parameters:
-            root (int): the initial node's index.
-            target (int): the target node's index.
-
-        Return value:
-            list<int>: path starting at "root" and ending at "target".
-        """
-
-        # list of all paths enqued (the next node to
-        # be analyzed is the last one on each path)
-        to_analyze = [[ root ]]
-
-        # list of all nodes already analyzed
-        history = []
-
-        # while to_analyze is not empty
-        while to_analyze:
-            # gets the current path
-            path = to_analyze.pop()
-
-            # currently being analyzed node
-            current = path[-1]
-
-            # appends the current node to the history
-            history.append(current)
-
-            # closest node to the target that's yet to be analyzed's index
-            # it's the node that have the lowest euclidian distance
-            closest_node_index = to_analyze.index(
-                min([ self.euclidian_distances[current][node[-1]] for node in to_analyze ])
-            )
-
-            # closest node to the target that's yet to be analyzed
-            # (it's the one most likely be on the best path)
-            closest_path = to_analyze.pop(closest_node_index)
-            closest_node = closest_path[-1]
-
-            # gets the current node's adjacency list
-            adjacencies = [ node for node in self.adjacencies[closest_node] if node not in history ]
-
-            # if the target is found
-            if target in adjacencies: return path + [ target ]
-
-            # loops through each adjacent node, marking
-            # a new path that ends in it to be analyzed
-            to_analyze.extend([ path + [ node ] for node in adjacencies ])
-
-        # if it got out of the loop, it means no path was found
-        return []
 
