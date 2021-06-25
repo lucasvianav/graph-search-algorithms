@@ -282,33 +282,44 @@ class Graph:
             list<int>: path starting at "root" and ending at "target".
         """
 
-        to_analyze   = [ root ]
+        # list of all paths enqued (the next node to
+        # be analyzed is the last one on each path)
+        to_analyze = [[ root ]]
+
+        # list of all nodes already analyzed
         history = []
 
         # while to_analyze is not empty
         while to_analyze:
+            # gets the current path
+            path = to_analyze.pop()
 
-            # if all nodes were analyzed and the target was not found
-            if not to_analyze: return []
+            # currently being analyzed node
+            current = path[-1]
+
+            # appends the current node to the history
+            history.append(current)
 
             # closest node to the target that's yet to be analyzed's index
             # it's the node that have the lowest euclidian distance
-            closest_node_index = to_analyze.index(min([ self.euclidian_distances[target][node] for node in to_analyze ]))
+            closest_node_index = to_analyze.index(
+                min([ self.euclidian_distances[current][node[-1]] for node in to_analyze ])
+            )
 
             # closest node to the target that's yet to be analyzed
             # (it's the one most likely be on the best path)
-            closest_node       = to_analyze[closest_node_index]
-
-            if closest_node not in history: history.append(closest_node)
-            to_analyze.remove(closest_node)
+            closest_path = to_analyze.pop(closest_node_index)
+            closest_node = closest_path[-1]
 
             # gets the current node's adjacency list
             adjacencies = [ node for node in self.adjacencies[closest_node] if node not in history ]
 
             # if the target is found
-            if target in adjacencies: return history + [ target ]
+            if target in adjacencies: return path + [ target ]
 
-            to_analyze.extend(adjacencies)
+            # loops through each adjacent node, marking
+            # a new path that ends in it to be analyzed
+            to_analyze.extend([ path + [ node ] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []
