@@ -7,11 +7,11 @@ no_vertices = [ 500, 5000, 10000 ]
 no_edges    = [ 3,   5,    7     ]
 
 for n in no_vertices:
+    root   = randint(0, n-1)
+    target = randint(0, n-1)
+
     for k in no_edges:
         graph = Graph(n, k)
-
-        root   = randint(0, n-1)
-        target = randint(0, n-1)
 
         while target == root: target = randint(0, n-1)
 

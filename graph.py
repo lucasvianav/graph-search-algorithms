@@ -191,10 +191,13 @@ class Graph:
         # receives a node dict and checks if it's already on the history
         # or if the current node's score is lower than the history's
         def validateFromHistory(node: dict) -> bool:
+            # list containing all times the current node was visited
             filtered_history = [ n for n in history if n['index'] == node['index'] ]
-            found_in_history = filtered_history[0] if filtered_history else None
 
-            return not bool(found_in_history) or found_in_history['score'] < node['score']
+            # the last time this node was visited is the one with the lowest score
+            lowest_score_path = filtered_history[-1] if filtered_history else None
+
+            return not bool(lowest_score_path) or lowest_score_path['score'] < node['score']
 
         # while to_analyze is not empty
         while to_analyze:
