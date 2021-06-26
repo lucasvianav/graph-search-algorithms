@@ -116,8 +116,8 @@ class Graph:
 
         if search_type not in [ 'breadth', 'depth', 'best' ]: return []
 
-        # list of all paths enqued (the next node to
-        # be analyzed is the last one on each path)
+        # list of all paths to be analyzed (the next node to
+        # be visited is the last one on each path)
         to_analyze = [[ root ]]
 
         # list of all nodes already analyzed
@@ -126,7 +126,7 @@ class Graph:
         # while to_analyze is not empty
         while to_analyze:
             # gets the current path
-            path = to_analyze.pop(0 if search_type == 'breadth' else -1)
+            path = to_analyze.pop(-1 if search_type == 'depth' else 0)
 
             # currently being analyzed node
             current = path[-1]
@@ -140,14 +140,14 @@ class Graph:
             # if the target is found
             if target in adjacencies: return path + [ target ]
 
-            # sorts adjacency list from closest to farthest node
-            # (only if it's performing a Best First Search)
-            if search_type == 'best':
-                adjacencies.sort(key=lambda node: self.euclidian_distances[current][node])
-
             # loops through each adjacent node, marking
             # a new path that ends in it to be analyzed
             to_analyze.extend([ path + [ node ] for node in adjacencies ])
+
+            # sorts to_analyze list from closest to farthest node (from the target)
+            # (only if it's performing a Best First Search)
+            if search_type == 'best':
+                to_analyze.sort(key=lambda node: self.euclidian_distances[target][node[-1]])
 
         # if it got out of the loop, it means no path was found
         return []
