@@ -298,3 +298,65 @@ class Graph:
             path_of_ids.append(node.id)
         return path_of_ids
 
+
+
+    def a_search_template(self, root: int, target: int, star: bool) -> list:
+        """
+        The function performs an A or A* algorithm Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        def generateNodeObject(acc_cost: float, path: list) -> dict:
+            """
+            This function simply generates a dict with that node's relevant info (the path that led to it as well as that path's cost to the target).
+
+            Parameters:
+                acc_cost (float): the actual cost accumulated on the current path.
+                path (list): the path that led to the current node (it being the last one).
+
+            Return value:
+                dict<{"index": int, "score": float, "path": list<int>}>: score is an underguess of the full cost to the target on the current path and path is the same as the argument.
+            """
+
+            def heuristic(current_node):
+                return self.euclidian_distances[target][current_node] if star else self.manhattan_distances[target][current_node]
+
+            return { "index": path[-1], "score": heuristic(path[-1]) + acc_cost, "path": path.copy() }
+
+        # list of all paths enqued (the next node to
+        # be analyzed is the last one on each path)
+        to_analyze = [ generateNodeObject(0, [root]) ]
+
+        # list of all nodes already analyzed
+        history = []
+
+        def validateFromHistory(node: dict) -> bool:
+            filtered_history = [ n for n in history if n['index'] == node['index'] ]
+            found_in_history = filtered_history[0] if filtered_history else None
+
+            return not bool(found_in_history) or found_in_history['score'] < node['score']
+
+        # while to_analyze is not empty
+        while to_analyze:
+            best_index = min([ node['score'] for node in to_analyze ])
+            current = to_analyze.pop(best_index)
+
+            if target in self.adjacencies[current['index']]: return current['path'] + target
+
+            history.append(current)
+
+            adjacencies = [
+                generateNodeObject(self.euclidian_distances[current['index']][node], current["path"])
+                for node in self.adjacencies[current['index']]
+            ]
+            adjacencies = [ node for node in adjacencies if validateFromHistory(node) ]
+
+            to_analyze.extend(adjacencies)
+
+        return []
