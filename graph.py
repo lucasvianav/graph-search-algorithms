@@ -188,6 +188,8 @@ class Graph:
         # list of all nodes already analyzed
         history = []
 
+        # receives a node dict and checks if it's already on the history
+        # or if the current node's score is lower than the history's
         def validateFromHistory(node: dict) -> bool:
             filtered_history = [ n for n in history if n['index'] == node['index'] ]
             found_in_history = filtered_history[0] if filtered_history else None
@@ -196,21 +198,33 @@ class Graph:
 
         # while to_analyze is not empty
         while to_analyze:
-            best_index = min([ node['score'] for node in to_analyze ])
+            # finds the node yet to be analyzed that has the lowest score
+            scores = [ node['score'] for node in to_analyze ]
+            best_index = scores.index(min(scores))
             current = to_analyze.pop(best_index)
 
+            # if the target is found, return the path to it
             if target in self.adjacencies[current['index']]: return current['path'] + target
 
+            # appends the current node to the history
             history.append(current)
 
+            # gets the current node's adjacency list as node dicts
             adjacencies = [
                 generateNodeObject(self.euclidian_distances[current['index']][node], current["path"])
                 for node in self.adjacencies[current['index']]
             ]
+
+            # filters for nodes that are not on history or have a lowest score
             adjacencies = [ node for node in adjacencies if validateFromHistory(node) ]
 
-            to_analyze = [ node for node in to_analyze if node['index'] not in [ n['index'] for n in adjacencies ] ] + adjacencies
+            # filters history to remove nodes that have higher score than the "adjacencies" one
+            to_analyze = [ node for node in to_analyze if node['index'] not in [ n['index'] for n in adjacencies ] ]
 
+            # adds the adjacencies nodes to the "to_analyze" list
+            to_analyze.extend(adjacencies)
+
+        # if it got out of the loop, it means no path was found
         return []
 
 
