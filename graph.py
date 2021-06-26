@@ -123,16 +123,30 @@ class Graph:
         # list of all nodes already analyzed
         history = []
 
+        # list of the distances between all nodes in to_analyze
+        # and the target (only used for Best First Searches)
+        distances = [ self.euclidian_distances[target][root] ] if search_type == 'best' else []
+
         # while to_analyze is not empty
         while to_analyze:
+            # if it's performing a Best First Search, select the node that's closest to the
+            # target (aka the node at the same index as the lowest value in distances)
+            if search_type == 'best':
+                # index of the lowest element in the distances list
+                selected_index = distances.index(min(distances))
+
+                # removes it from the list (as the path'll be removed from to_analyze as well)
+                distances.pop(selected_index)
+
+            # for DST, make it LIFO
+            # fot BST, make FIFO
+            else: selected_index = -1 if search_type == 'depth' else 0
+
             # gets the current path
-            path = to_analyze.pop(-1 if search_type == 'depth' else 0)
+            path = to_analyze.pop(selected_index)
 
             # currently being analyzed node
             current = path[-1]
-
-            # appends the current node to the history
-            history.append(current)
 
             # gets the current node's adjacency list
             adjacencies = [ node for node in self.adjacencies[current] if node not in history ]
@@ -140,14 +154,15 @@ class Graph:
             # if the target is found
             if target in adjacencies: return path + [ target ]
 
+            # appends the current node to the history
+            history.append(current)
+
             # loops through each adjacent node, marking
             # a new path that ends in it to be analyzed
             to_analyze.extend([ path + [ node ] for node in adjacencies ])
 
-            # sorts to_analyze list from closest to farthest node (from the target)
-            # (only if it's performing a Best First Search)
-            if search_type == 'best':
-                to_analyze.sort(key=lambda node: self.euclidian_distances[target][node[-1]])
+            # if it's performing a Best First Search, append distances for adjacent nodes to the list
+            if search_type == 'best': distances.extend([ self.euclidian_distances[target][node] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []

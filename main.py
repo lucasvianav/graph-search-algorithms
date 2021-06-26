@@ -3,8 +3,8 @@ from time import time
 
 from graph import Graph
 
-no_vertices = [ 500 ]
-# no_vertices = [ 500, 5000, 10000 ]
+# no_vertices = [ 500 ]
+no_vertices = [ 500, 5000, 10000 ]
 no_edges    = [ 3,   5,    7     ]
 
 with open(str(time()).replace('.','') + '.out', 'w') as f:
