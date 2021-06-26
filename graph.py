@@ -98,6 +98,9 @@ class Graph:
         self.euclidian_distances = euclidian_distances
         self.manhattan_distances = manhattan_distances
 
+
+    # PRIVATE TEMPLATE METHODS
+
     def __template_first_search(self, search_type: str, root: int, target: int) -> list:
         """
         Performs a Breadth First Search or a Depth First Search, returning the path that links the "root" node to the "target" node.
@@ -149,158 +152,7 @@ class Graph:
         # if it got out of the loop, it means no path was found
         return []
 
-
-
-    def breadthFirstSearch(self, root: int, target: int) -> list:
-        """
-        The function performs a Breadth First Search, returning the path that links the "root" node to the "target" node.
-
-        Parameters:
-            root (int): the initial node's index.
-            target (int): the target node's index.
-
-        Return value:
-            list<int>: path starting at "root" and ending at "target".
-        """
-
-        # performs the Breadth First Search
-        return self.__template_first_search('breadth', root, target)
-
-    def depthFirstSearch(self, root: int, target: int) -> list:
-        """
-        The function performs a Depth First Search, returning the path that links the "root" node to the "target" node.
-
-        Parameters:
-            root (int): the initial node's index.
-            target (int): the target node's index.
-
-        Return value:
-            list<int>: path starting at "root" and ending at "target".
-        """
-
-        # performs the Depth First Search
-        return self.__template_first_search('best', root, target)
-
-    def bestFirstSearch(self, root, target):
-        """
-        The function performs a Best First Search, returning the path that links the "root" node to the "target" node.
-
-        Parameters:
-            root (int): the initial node's index.
-            target (int): the target node's index.
-
-        Return value:
-            list<int>: path starting at "root" and ending at "target".
-        """
-
-        # performs the Best First Search
-        return self.__template_first_search('best', root, target)
-
-
-
-    # removes nodes that were found 2 times but have different scores, maintaining the one with least score
-    def __remove_dup_leaf(self, start, leaves):
-        for i in range(start, len(leaves)):
-            for j in range(i+1, len(leaves)):
-                if leaves[i]['id'] == leaves[j]['id']:
-                    if leaves[i]['score'] > leaves[j]['score']:
-                        leaves.pop(i)
-                    else:
-                        leaves.pop(j)
-                    return self.__remove_dup_leaf(i, leaves)
-        return leaves
-
-    def __node_in_path(self, node: int, path: list):
-        for i in range(len(path)):
-            if node == path[i]['id']:
-                return True
-        return False
-
-    def __remove_leaf(self, leaf: dict, leaves: list):
-        for i in range(len(leaves)):
-            if leaves[i]['id'] == leaf['id']:
-                leaves.pop(i)
-                return leaves
-        return leaves
-
-    def ASearch(self, root: int, target: int, asterisk: bool) -> list:
-        """
-        The function performs an A or A* algorithm Search, returning the path that links the "root" node to the "target" node.
-
-        Parameters:
-            root (int): the initial node's index.
-            target (int): the target node's index.
-
-        Return value:
-            list<int>: path starting at "root" and ending at "target".
-        """
-
-        def ASearchStructNode(heuristic: float, cost_of_path: int, id: int, path: list):
-            return {
-                "score": heuristic + cost_of_path,
-
-                # heuristic = underguess of how much would take to get to the objective
-                "heuristic": heuristic,
-
-                # cost_of_path = total cost until getting to the node
-                "cost_of_path": cost_of_path,
-
-                # id = id of the node
-                "id": id,
-
-                # path_to_node records the path until reaching the node, list(path) to clone the list so that modifying the first do not affect the list on the node
-                "path_to_node": list(path)
-            }
-
-        path = []
-        # leaves are all the leaves of the tree
-        leaves = []
-        # initializes the root node
-        root_node = ASearchStructNode(0, 0, root, path)
-        path.append(root_node)
-        while path[-1]['id'] != target:
-            parent_node = path[-1]
-            # expands the leaves of the tree
-            for i in self.adjacencies[parent_node['id']-1]: # -1 because is array pos
-                if not self.__node_in_path(i, path):
-                    if asterisk: # if its the A* algorithm, the euclidian distance will be used
-                        # finds the euclidian distance between the current node and the target
-                        heuristic = self.euclidian_distances[i-1][target-1]
-                    else:       # if its the A algorithm
-                        # finds the manhattan distance between the current node and the target
-                        heuristic = self.manhattan_distances[i-1][target-1]
-                    # creates the leaf node
-                    leaf = ASearchStructNode(heuristic, len(path), i, path)
-                    leaves.append(leaf)
-
-            # remove duplicated nodes that were found on different paths
-            leaves = self.__remove_dup_leaf(0, leaves)
-
-            # choosing the leaf with the least score
-            leaf_to_expand = leaves[0]
-            smallest_score = leaves[0]['score']
-            for leaf in leaves:
-                if leaf['score'] < smallest_score:
-                    smallest_score = leaf['score']
-                    leaf_to_expand = leaf
-            # updating the path to the one of the current leaf
-            path = leaf_to_expand['path_to_node']
-
-            # adding the leaf to the path
-            path.append(leaf_to_expand)
-
-            # removing the now visited ex-leaf
-            leaves = self.__remove_leaf(leaf_to_expand, leaves)
-
-        # path_of_ids is the path with the numbers of the nod and not the class A_search_struct_node
-        path_of_ids = []
-        for node in path:
-            path_of_ids.append(node.id)
-        return path_of_ids
-
-
-
-    def a_search_template(self, root: int, target: int, star: bool) -> list:
+    def __a_search_template(self, root: int, target: int, star: bool = False) -> list:
         """
         The function performs an A or A* algorithm Search, returning the path that links the "root" node to the "target" node.
 
@@ -357,6 +209,84 @@ class Graph:
             ]
             adjacencies = [ node for node in adjacencies if validateFromHistory(node) ]
 
-            to_analyze.extend(adjacencies)
+            to_analyze = [ node for node in to_analyze if node['index'] not in [ n['index'] for n in adjacencies ] ] + adjacencies
 
         return []
+
+
+
+    # ACTUAL SEARCH ALGORITHMS
+
+    def breadthFirstSearch(self, root: int, target: int) -> list:
+        """
+        The function performs a Breadth First Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        # performs the Breadth First Search
+        return self.__template_first_search('breadth', root, target)
+
+    def depthFirstSearch(self, root: int, target: int) -> list:
+        """
+        The function performs a Depth First Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        # performs the Depth First Search
+        return self.__template_first_search('best', root, target)
+
+    def bestFirstSearch(self, root, target):
+        """
+        The function performs a Best First Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        # performs the Best First Search
+        return self.__template_first_search('best', root, target)
+
+    def aSearch(self, root: int, target: int):
+        """
+        The function performs an A-Algorithm Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        return self.__a_search_template(root, target)
+
+    def aStarSearch(self, root: int, target: int):
+        """
+        The function performs an A*-Algorithm Search, returning the path that links the "root" node to the "target" node.
+
+        Parameters:
+            root (int): the initial node's index.
+            target (int): the target node's index.
+
+        Return value:
+            list<int>: path starting at "root" and ending at "target".
+        """
+
+        return self.__a_search_template(root, target, True)
+
