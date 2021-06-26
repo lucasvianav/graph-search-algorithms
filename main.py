@@ -1,43 +1,55 @@
-import time
+from random import randint
+from time import time
 
 from graph import Graph
 
-v = [500, 5000, 10000]
-k = [3, 5, 7]
-paths = [[[] for _ in range(5)] for _ in range(9)]
-times = [[0 for _ in range(5)] for _ in range(9)]
-i = 0
-names = ["Breadth", "Depth", "A", "A*", "Best first"]
-for nodes in v:
-    for edges in k:
-        grafo = Graph(nodes, edges)
-        start_time = time.time()
-        paths[0][i] = grafo.breadthFirstSearch(1, nodes)
-        times[0][i] = time.time() - start_time
-        print(f"done {names[i]} {nodes} {edges}\n")
-        start_time = time.time()
-        paths[1][i] = grafo.depthFirstSearch(1, nodes)
-        times[1][i] = time.time() - start_time
-        print(f"done depth {nodes} {edges}\n")
-        start_time = time.time()
-        paths[2][i] = grafo.ASearch(1, nodes, False)
-        times[2][i] = time.time() - start_time
-        print(f"done A {nodes} {edges}\n")
-        start_time = time.time()
-        paths[3][i] = grafo.ASearch(1, nodes, True)
-        times[3][i] = time.time() - start_time
-        print(f"done A* {nodes} {edges}\n")
-        start_time = time.time()
-        paths[4][i] = grafo.BestFirstSearch(1, nodes)
-        times[4][i] = time.time() - start_time
-        print(f"done Best First {nodes} {edges}\n")
-        i += 1
-i = 0
-for i in range(len(names)):
-    for nodes in v:
-        for edges in k:
-            print(f"{names[i]} Search:\n"
-                  f"v = {nodes} k = {edges}\n"
-                  f"path: {paths[0][i]}\n"
-                  f"time: {times[0][i]}\n")
-            i += 1
+no_vertices = [ 500, 5000, 10000 ]
+no_edges    = [ 3,   5,    7     ]
+
+for n in no_vertices:
+    for k in no_edges:
+        graph = Graph(n, k)
+
+        root   = randint(0, n-1)
+        target = randint(0, n-1)
+
+        while target == root: target = randint(0, n-1)
+
+        start_time   = time()
+        breadth      = graph.breadthFirstSearch(root, target)
+        breadth_time = time() - start_time
+
+        start_time   = time()
+        depth        = graph.depthFirstSearch(root, target)
+        depth_time   = time() - start_time
+
+        start_time   = time()
+        best         = graph.bestFirstSearch(root, target)
+        best_time    = time() - start_time
+
+        start_time   = time()
+        a            = graph.aSearch(root, target)
+        a_time       = time() - start_time
+
+        start_time   = time()
+        a_star       = graph.aStarSearch(root, target)
+        a_star_time  = time() - start_time
+
+        print(f'\n\n\n\n   ###  n = {n}  ###  k = {k}  ###')
+        print(f'  ### root = {root}  ###  target = {target}  ###\n')
+
+        print(f'Breadth First Search: {breadth_time}s')
+        print(breadth, end='\n\n')
+
+        print(f'Depth First Search: {depth_time}s')
+        print(depth, end='\n\n')
+
+        print(f'Best First Search: {best_time}s')
+        print(best, end='\n\n')
+
+        print(f'A Search: {a_time}s')
+        print(a, end='\n\n')
+
+        print(f'A Star Search: {a_star_time}s')
+        print(a_star, end='\n\n')
+

@@ -204,32 +204,27 @@ class Graph:
             current = to_analyze.pop(best_index)
 
             # if the target is found, return the path to it
-            if target in self.adjacencies[current['index']]: return current['path'] + target
+            if target in self.adjacencies[current['index']]: return current['path'] + [ target ]
 
             # appends the current node to the history
             history.append(current)
 
             # gets the current node's adjacency list as node dicts
             adjacencies = [
-                generateNodeObject(self.euclidian_distances[current['index']][node], current["path"])
+                generateNodeObject(self.euclidian_distances[current['index']][node], current["path"] + [ node ])
                 for node in self.adjacencies[current['index']]
             ]
 
-            # filters for nodes that are not on history or have a lowest score
-            adjacencies = [ node for node in adjacencies if validateFromHistory(node) ]
-
-            # filters history to remove nodes that have higher score than the "adjacencies" one
-            to_analyze = [ node for node in to_analyze if node['index'] not in [ n['index'] for n in adjacencies ] ]
-
-            # adds the adjacencies nodes to the "to_analyze" list
-            to_analyze.extend(adjacencies)
+            # adds the adjacencies nodes to the "to_analyze" list and
+            # filters nodes that have a lower score on history
+            to_analyze = [ node for node in to_analyze + adjacencies if validateFromHistory(node) ]
 
         # if it got out of the loop, it means no path was found
         return []
 
 
 
-    # ACTUAL SEARCH ALGORITHMS
+    # ACTUAL SEARCH ALGORITHM PUBLIC METHODS
 
     def breadthFirstSearch(self, root: int, target: int) -> list:
         """
@@ -259,7 +254,7 @@ class Graph:
         """
 
         # performs the Depth First Search
-        return self.__template_first_search('best', root, target)
+        return self.__template_first_search('depth', root, target)
 
     def bestFirstSearch(self, root, target):
         """
