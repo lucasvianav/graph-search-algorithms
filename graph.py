@@ -27,13 +27,19 @@ class Graph:
 
         # adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
-        # element is the number of edjes between node i and j)
-        edges               = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
+        # element is the number of edges between node i and j)
+        edges = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
 
         # euclidian distances matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the distance between node i and j)
         distances = [ [] for _ in range(nNodes) ]
+
+        # wheighted adjacency matrix
+        # (i rows and j columns are nodes and the [i][j]
+        # element is the wheight of the edge between node i and j)
+        # (nonexistant edges are considered to have wheight 0)
+        wheighted = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
 
         def euclidianDistance(i: int, j: int):
             """
@@ -65,14 +71,17 @@ class Graph:
             closest = sorted( _nodes, key=lambda n: n[1])[0:nEdges]
 
             # for each of the closest nodes, create an edge between them
-            for node_index, _ in closest:
-                edges[current_index][node_index] = edges[node_index][current_index] = 1
+            for node, distance in closest:
+                edges[current_index][node] = edges[node][current_index] = 1
+                wheighted[current_index][node] = wheighted[node][current_index] = distance
 
         # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
 
+        # other attributes
         self.nNodes      = nNodes
         self.distances   = distances
+        self.wheighted   = wheighted
 
 
     # PRIVATE TEMPLATE METHODS
