@@ -30,11 +30,10 @@ class Graph:
         # element is the number of edjes between node i and j)
         edges               = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
 
-        # distances matrix
+        # euclidian distances matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the distance between node i and j)
-        euclidian_distances = [ [] for _ in range(nNodes) ]
-        manhattan_distances = [ [] for _ in range(nNodes) ]
+        distances = [ [] for _ in range(nNodes) ]
 
         def euclidianDistance(i: int, j: int):
             """
@@ -50,39 +49,17 @@ class Graph:
 
             return dist(nodes[i], nodes[j])
 
-        def manhattanDistance(i: int, j: int):
-            """
-            Calculates the Manhattan Distance between two nodes.
-
-            Parameters:
-                i (int): the node's index in the "nodes" list.
-                j (int): the node's index in the "nodes" list.
-
-            return:
-                float: the Manhattan Distance between the two nodes.
-            """
-
-            # nodes[a][0] -> x coordenate of a
-            # nodes[a][1] -> y coordenate of a
-            return abs(nodes[i][0] - nodes[j][0]) + abs(nodes[i][1] - nodes[j][1])
-
         # generates the edges and calculates the distances
         for current_index in range(nNodes):
-            euclidian_distances[current_index] = [
-                euclidian_distances[node][current_index] if (node < current_index)
+            distances[current_index] = [
+                distances[node][current_index] if (node < current_index)
                 else euclidianDistance(current_index, node)
-                for node in range(nNodes)
-            ]
-
-            manhattan_distances[current_index] = [
-                manhattan_distances[node][current_index] if (node < current_index)
-                else manhattanDistance(current_index, node)
                 for node in range(nNodes)
             ]
 
             # "nEdges" closest nodes
             _nodes = [
-                ( node, euclidian_distances[current_index][node] )
+                ( node, distances[current_index][node] )
                 for node in range(nNodes) if node != current_index
             ]
             closest = sorted( _nodes, key=lambda n: n[1])[0:nEdges]
@@ -94,9 +71,8 @@ class Graph:
         # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
 
-        self.nNodes              = nNodes
-        self.euclidian_distances = euclidian_distances
-        self.manhattan_distances = manhattan_distances
+        self.nNodes      = nNodes
+        self.distances   = distances
 
 
     # PRIVATE TEMPLATE METHODS
@@ -125,7 +101,7 @@ class Graph:
 
         # list of the distances between all nodes in to_analyze
         # and the target (only used for Best First Searches)
-        distances = [ self.euclidian_distances[target][root] ] if search_type == 'best' else []
+        distances = [ self.distances[target][root] ] if search_type == 'best' else []
 
         # while to_analyze is not empty
         while to_analyze:
@@ -162,7 +138,7 @@ class Graph:
             to_analyze.extend([ path + [ node ] for node in adjacencies ])
 
             # if it's performing a Best First Search, append distances for adjacent nodes to the list
-            if search_type == 'best': distances.extend([ self.euclidian_distances[target][node] for node in adjacencies ])
+            if search_type == 'best': distances.extend([ self.distances[target][node] for node in adjacencies ])
 
         # if it got out of the loop, it means no path was found
         return []
@@ -192,7 +168,7 @@ class Graph:
             """
 
             def heuristic(current_node):
-                return self.euclidian_distances[target][current_node] if star else self.manhattan_distances[target][current_node]
+                return self.distances[target][current_node] * ( 1 if star else 10 )
 
             return { "index": path[-1], "score": heuristic(path[-1]) + acc_cost, "path": path.copy() }
 
@@ -229,7 +205,7 @@ class Graph:
 
             # gets the current node's adjacency list as node dicts
             adjacencies = [
-                generateNodeObject(self.euclidian_distances[current['index']][node], current["path"] + [ node ])
+                generateNodeObject(self.distances[current['index']][node], current["path"] + [ node ])
                 for node in self.adjacencies[current['index']]
             ]
 
