@@ -30,18 +30,18 @@ class Graph:
         # adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the number of edges between node i and j)
-        edges = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
+        edges = [ [ 0 ] * nNodes ] * nNodes
 
         # euclidian distances matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the distance between node i and j)
-        distances = [ [] for _ in range(nNodes) ]
+        distances = [ [] ] * nNodes
 
         # weighted adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the weight of the edge between node i and j)
         # (nonexistant edges are considered to have weight 0)
-        weighted = [ [ 0 for _ in range(nNodes) ] for _ in range(nNodes) ]
+        weighted = [ [ 0  * nNodes ] * nNodes ]
 
         def euclidianDistance(i: int, j: int):
             """
