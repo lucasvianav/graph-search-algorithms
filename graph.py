@@ -2,7 +2,6 @@ from math import dist
 from random import random
 
 import igraph
-from pandas import DataFrame
 
 
 class Graph:
@@ -150,6 +149,9 @@ class Graph:
             # currently being analyzed node
             current = path[-1]
 
+            # if the current node was already analyzed, go to the next
+            if current in history: continue
+
             # gets the current node's adjacency list
             adjacencies = [ node for node in self.adjacencies[current] if node not in history ]
 
@@ -214,7 +216,7 @@ class Graph:
             # the last time this node was visited is the one with the lowest score
             lowest_score_path = filtered_history[-1] if filtered_history else None
 
-            return not bool(lowest_score_path) or lowest_score_path['score'] < node['score']
+            return not bool(lowest_score_path) or lowest_score_path['score'] > node['score']
 
         # while to_analyze is not empty
         while to_analyze:

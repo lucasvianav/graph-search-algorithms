@@ -38,37 +38,27 @@ with open(str(time()).replace('.','') + '.out', 'w') as f:
             a_star_time  = time() - start_time
 
             f.write(f'\n\n\n\n###  n = {n}  ###  k = {k}  ### root = {root}  ###  target = {target}  ###\n')
-
             f.write(f'Breadth First Search: {breadth_time}s\n')
             f.write(str(breadth) + '\n\n')
-
             f.write(f'Depth First Search: {depth_time}s\n')
             f.write(str(depth) + '\n\n')
-
             f.write(f'Best First Search: {best_time}s\n')
             f.write(str(best) + '\n\n')
-
             f.write(f'A Search: {a_time}s\n')
             f.write(str(a) + '\n\n')
-
             f.write(f'A Star Search: {a_star_time}s\n')
             f.write(str(a_star) + '\n\n')
 
 
             print(f'\n\n\n\n###  n = {n}  ###  k = {k}  ### root = {root}  ###  target = {target}  ###\n')
-
             print(f'Breadth First Search: {breadth_time}s')
             print(breadth, end='\n\n')
-
             print(f'Depth First Search: {depth_time}s')
             print(depth, end='\n\n')
-
             print(f'Best First Search: {best_time}s')
             print(best, end='\n\n')
-
             print(f'A Search: {a_time}s')
             print(a, end='\n\n')
-
             print(f'A Star Search: {a_star_time}s')
             print(a_star, end='\n\n')
 
