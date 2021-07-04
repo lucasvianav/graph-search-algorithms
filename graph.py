@@ -2,6 +2,7 @@ from math import dist
 from random import random
 
 import igraph
+from pandas import DataFrame
 
 
 class Graph:
@@ -30,18 +31,18 @@ class Graph:
         # adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the number of edges between node i and j)
-        edges = [ [ 0 ] * nNodes ] * nNodes
+        edges = [ [ 0 ] * nNodes for _ in range(nNodes) ]
 
         # euclidian distances matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the distance between node i and j)
-        distances = [ [] ] * nNodes
+        distances = [ [] for _ in range(nNodes) ]
 
         # weighted adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the weight of the edge between node i and j)
         # (nonexistant edges are considered to have weight 0)
-        weighted = [ [ 0  * nNodes ] * nNodes ]
+        weighted = [ [ 0 ] * nNodes for _ in range(nNodes) ]
 
         def euclidianDistance(i: int, j: int):
             """
@@ -81,26 +82,24 @@ class Graph:
         self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
 
         # other attributes
-        self.nNodes      = nNodes
-        self.distances   = distances
-        self.weighted   = weighted
+        self.nNodes    = nNodes
+        self.distances = distances
+        self.weighted  = weighted
 
     def plot(self, layout: str = 'large'):
         graph = igraph.Graph().Weighted_Adjacency(self.weighted, 'undirected', '')
 
-        vertex_label = range(self.nNodes)
-        vertex_color = ['#2be'] * self.nNodes
-        vertex_label_color = ['#f5f5f5'] * self.nNodes
-        box = ( 1500, 1500 )
-        vertex_size = 50
+        style = {
+            "bbox":               ( 1500, 1500 ),
+            "layout":             layout,
+            "vertex_color":       ['#2be'] * self.nNodes,
+            "vertex_label":       range(self.nNodes),
+            "vertex_label_color": ['#f5f5f5'] * self.nNodes,
+            "vertex_size":        50
+        }
 
-        return igraph.plot(graph,
-                           bbox               = box,
-                           layout             = layout,
-                           vertex_color       = vertex_color,
-                           vertex_size        = vertex_size,
-                           vertex_label       = vertex_label,
-                           vertex_label_color = vertex_label_color)
+        return igraph.plot(graph, **style)
+
 
     # PRIVATE TEMPLATE METHODS
 
