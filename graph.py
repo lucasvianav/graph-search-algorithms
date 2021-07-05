@@ -57,9 +57,8 @@ class Graph(nx.Graph):
         for current_index in range(nNodes):
             # euclidian distances between the current node and all others
             distances[current_index] = [
-                distances[node][current_index] if (node < current_index)
-                else euclidianDistance(current_index, node)
-                for node in range(nNodes)
+                euclidianDistance(current_index, node) if node >= current_index
+                else distances[node][current_index] for node in range(nNodes)
             ]
 
             # list of tuples for all nodes except the current one
