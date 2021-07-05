@@ -116,9 +116,6 @@ class Graph(nx.Graph):
         # draws the nodes (with labels) and edges
         nx.draw_networkx(self, position, arrows=False, with_labels=True, node_size=900, ax=ax)
 
-        # displays x and y values
-        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-
         # if edge_labels is enabled
         if edge_labels:
             # edge weights (distances)
@@ -131,6 +128,9 @@ class Graph(nx.Graph):
             edges = [ ( path[i], path[i+1] ) for i in range(len(path)-1) ]
             nx.draw_networkx_nodes(self, position, nodelist=path, node_color='r', node_size=900, edgecolors='black', ax=ax)
             nx.draw_networkx_edges(self, position, edgelist=edges, edge_color='r', width=10, ax=ax)
+
+        # displays x and y values
+        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
         # saves the fig to pdf
         plt.savefig(filename + '.pdf')
