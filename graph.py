@@ -138,6 +138,8 @@ class Graph(nx.Graph):
         # shows the figure if set
         if show: plt.show()
 
+        plt.close('all')
+
 
     # PRIVATE TEMPLATE METHODS
 
