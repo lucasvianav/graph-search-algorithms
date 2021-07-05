@@ -97,14 +97,29 @@ class Graph(nx.Graph):
         self.distances = distances
 
     def plot(self, edge_labels: bool = False):
-        pos=nx.get_node_attributes(self, 'pos')
+        """
+        Plots the graph.
 
-        nx.draw_networkx(self, pos, arrows=False, with_labels=True)
+        Parameters:
+            edge_labels (bool): if the distances should be displayed as edge labels.
+            nEdges (int): number of edges to be generated from each node.
+        """
 
+        # nodes' coordiates
+        position = nx.get_node_attributes(self, 'pos')
+
+        # draws the nodes (with labels) and edges
+        nx.draw_networkx(self, position, arrows=False, with_labels=True)
+
+        # if edge_labels is enabled
         if edge_labels:
-            labels = nx.get_edge_attributes(self,'distance')
-            nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
+            # edge weights (distances)
+            labels = nx.get_edge_attributes(self, 'distance')
 
+            # draws the labels
+            nx.draw_networkx_edge_labels(self, position, edge_labels=labels)
+
+        # shows the figure
         plt.show()
 
 
