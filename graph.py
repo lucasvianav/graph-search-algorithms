@@ -8,7 +8,7 @@ import numpy as np
 
 class Graph(nx.Graph):
     """
-    This is a class for testing search algorithms for graphs.
+    This is a class for testing and visualizing Graph search algorithms. It extends the NetworkX Graph class.
 
     Class constructor - generates a random KNN Graph.
 
@@ -26,28 +26,19 @@ class Graph(nx.Graph):
             nEdges (int): number of edges to be generated from each node.
         """
 
+        # initializes a networkx graph
         super().__init__()
 
         # nodes' 2D coordinates (x, y)
-        self.coordinates = [ ( nNodes*random(), nNodes*random() ) for _ in range(nNodes) ]
+        coordinates = [ ( nNodes*random(), nNodes*random() ) for _ in range(nNodes) ]
 
-        self.add_nodes_from([ ( i, { "pos": self.coordinates[i] } ) for i in range(nNodes) ])
-
-        # adjacency matrix
-        # (i rows and j columns are nodes and the [i][j]
-        # element is the number of edges between node i and j)
-        edges = [ [ 0 ] * nNodes for _ in range(nNodes) ]
+        # adds nodes in the generated coordinates to the graph
+        self.add_nodes_from([ ( i, { "pos": coordinates[i] } ) for i in range(nNodes) ])
 
         # euclidian distances matrix
         # (i rows and j columns are nodes and the [i][j]
         # element is the distance between node i and j)
-        distances = [ [] for _ in range(nNodes) ]
-
-        # weighted adjacency matrix
-        # (i rows and j columns are nodes and the [i][j]
-        # element is the weight of the edge between node i and j)
-        # (nonexistant edges are considered to have weight 0)
-        weighted = [ [ 0 ] * nNodes for _ in range(nNodes) ]
+        distances = [ [ 0. ] for _ in range(nNodes) ]
 
         def euclidianDistance(i: int, j: int):
             """
@@ -61,46 +52,49 @@ class Graph(nx.Graph):
                 float: the Euclidian Distance between the two nodes.
             """
 
-            return dist(self.coordinates[i], self.coordinates[j])
+            return dist(coordinates[i], coordinates[j])
 
         # generates the edges and calculates the distances
         for current_index in range(nNodes):
+            # euclidian distances between the current node and all others
             distances[current_index] = [
                 distances[node][current_index] if (node < current_index)
                 else euclidianDistance(current_index, node)
                 for node in range(nNodes)
             ]
 
-            # "nEdges" closest nodes
+            # list of tuples for all nodes except the current one
+            # ( current_node_index, node_index, distance between both )
             nodes = [
                 ( current_index, node, distances[current_index][node] )
                 for node in range(nNodes) if node != current_index
             ]
 
-            # closest_nodes = [ node for node in range(nNodes)[0:nEdges] if node != current_index ]
-            # closest_distances = [ distances[current_index][node] for node in closest_nodes ]
+            # the node that's the farthest from the current one
+            # ( in the "closest" list, see below )
+            farthest_node = max(nodes, key=lambda n: n[2])
 
-            # for node in nodes:
-            #     if node[0] not in closest_nodes and node[1] < max(closest_distances):
-            #         index = closest_distances.index(max(closest_distances))
-            #         closest_nodes[index], closest_distances[index] = node
+            # list of the closest "nEdges" from the current one
+            # (initialized with only the farthest one, "nEdges" times)
+            closest = [ farthest_node ] * nEdges
 
-            closest = sorted(nodes, key=lambda n: n[2])[0:nEdges]
+            # selects only the "nEdges" closest nodes from the
+            # current one (it's cheaper than sorting the "nodes"
+            # list and selecting the first "nEdges" elements)
+            for node in nodes:
+                # if this node is closer than the farthest node in
+                # the "closest" list, then insert it in it's place
+                if node[2] < farthest_node[2]:
+                    closest[closest.index(farthest_node)] = node
 
+                    # selects the new farthest node in "closest"
+                    farthest_node = max(closest, key=lambda n: n[2])
+
+            # creates edges between the selected nodes and the current
+            # one (also register the distance between them as edge weight)
             self.add_weighted_edges_from(closest, 'distance')
 
-            # for each of the closest nodes, create an edge between them
-            for _, node, distance in closest:
-                edges[current_index][node] = edges[node][current_index] = 1
-                weighted[current_index][node] = weighted[node][current_index] = distance
-
-        # each index is a node (node number) and the value is the list of neighbouring the nodes' indexes
-        self.adjacencies = [ [ node for node, hasEdge in enumerate(row) if hasEdge ] for row in edges ]
-
-        # other attributes
-        self.nNodes    = nNodes
         self.distances = distances
-        self.weighted  = weighted
 
     def plot(self, edge_labels: bool = False):
         pos=nx.get_node_attributes(self, 'pos')
@@ -112,15 +106,6 @@ class Graph(nx.Graph):
             nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
 
         plt.show()
-
-        # style = {
-        #     "bbox":               ( 1500, 1500 ),
-        #     "layout":             layout,
-        #     "vertex_color":       ['#2be'] * self.nNodes,
-        #     "vertex_label":       range(self.nNodes),
-        #     "vertex_label_color": ['#f5f5f5'] * self.nNodes,
-        #     "vertex_size":        50
-        # }
 
 
     # PRIVATE TEMPLATE METHODS
@@ -176,7 +161,7 @@ class Graph(nx.Graph):
             if current in history: continue
 
             # gets the current node's adjacency list
-            adjacencies = [ node for node in self.adjacencies[current] if node not in history ]
+            adjacencies = [ node for node in self.neighbors(current) if node not in history ]
 
             # if the target is found
             if target in adjacencies: return path + [ target ]
@@ -239,7 +224,7 @@ class Graph(nx.Graph):
             # the last time this node was visited is the one with the lowest score
             lowest_score_path = filtered_history[-1] if filtered_history else None
 
-            return not bool(lowest_score_path) or lowest_score_path['score'] > node['score']
+            return not bool(lowest_score_path) or (lowest_score_path['score'] > node['score'])
 
         # while to_analyze is not empty
         while to_analyze:
@@ -248,8 +233,10 @@ class Graph(nx.Graph):
             best_index = scores.index(min(scores))
             current = to_analyze.pop(best_index)
 
+            adjacencies = [ node for node in self.neighbors(current['index']) ]
+
             # if the target is found, return the path to it
-            if target in self.adjacencies[current['index']]: return current['path'] + [ target ]
+            if target in adjacencies: return current['path'] + [ target ]
 
             # appends the current node to the history
             history.append(current)
@@ -257,7 +244,7 @@ class Graph(nx.Graph):
             # gets the current node's adjacency list as node dicts
             adjacencies = [
                 generateNodeObject(self.distances[current['index']][node], current["path"] + [ node ])
-                for node in self.adjacencies[current['index']]
+                for node in adjacencies
             ]
 
             # adds the adjacencies nodes to the "to_analyze" list and
