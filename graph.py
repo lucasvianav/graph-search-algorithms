@@ -1,7 +1,9 @@
 from math import dist
 from random import random
 
-import igraph
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 
 
 class Graph:
@@ -86,18 +88,32 @@ class Graph:
         self.weighted  = weighted
 
     def plot(self, layout: str = 'large'):
-        graph = igraph.Graph().Weighted_Adjacency(self.weighted, 'undirected', '')
+        # generates the networkx graph and adds all nodes
+        graph = nx.Graph()
+        graph.add_nodes_from(range(self.nNodes))
 
-        style = {
-            "bbox":               ( 1500, 1500 ),
-            "layout":             layout,
-            "vertex_color":       ['#2be'] * self.nNodes,
-            "vertex_label":       range(self.nNodes),
-            "vertex_label_color": ['#f5f5f5'] * self.nNodes,
-            "vertex_size":        50
-        }
+        # calculates rows, cols and weights
+        weighted = np.array(self.weighted)
+        rows, cols = np.where(weighted > 0)
+        values = [ weighted[i][j] for i, j in zip(rows, cols) ]
 
-        return igraph.plot(graph, **style)
+        # adds edges the graph
+        graph.add_weighted_edges_from(zip(rows, cols, values), 'distance')
+
+        pos=nx.spring_layout(graph)
+        nx.draw_networkx(graph, pos, arrows=False, with_labels=True)
+        # labels = nx.get_edge_attributes(graph,'distance')
+        # nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+        plt.show()
+
+        # style = {
+        #     "bbox":               ( 1500, 1500 ),
+        #     "layout":             layout,
+        #     "vertex_color":       ['#2be'] * self.nNodes,
+        #     "vertex_label":       range(self.nNodes),
+        #     "vertex_label_color": ['#f5f5f5'] * self.nNodes,
+        #     "vertex_size":        50
+        # }
 
 
     # PRIVATE TEMPLATE METHODS
