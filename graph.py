@@ -138,6 +138,7 @@ class Graph(nx.Graph):
         # shows the figure if set
         if show: plt.show()
 
+        # cleaning up all figures
         plt.close('all')
 
 

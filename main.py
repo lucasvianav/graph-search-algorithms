@@ -64,9 +64,9 @@ with open(filename + '.out', 'w') as f:
             print(f'A Star Search: {a_star_time}s')
             print(a_star, end='\n\n')
 
-            graph.plot(filename + '-breadth' , breadth)
-            graph.plot(filename + '-depth'   , depth)
-            graph.plot(filename + '-best'    , best)
-            graph.plot(filename + '-a'       , a)
-            graph.plot(filename + '-a_star'  , a_star)
+            graph.plot('{filename}-breadth-{n}-{k}' , breadth)
+            graph.plot('{filename}-depth-{n}-{k}'   , depth)
+            graph.plot('{filename}-best-{n}-{k}'    , best)
+            graph.plot('{filename}-a-{n}-{k}'       , a)
+            graph.plot('{filename}-a_star-{n}-{k}'  , a_star)
 
