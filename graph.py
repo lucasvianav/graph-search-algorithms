@@ -93,21 +93,31 @@ class Graph(nx.Graph):
             self.add_weighted_edges_from(closest, 'distance')
 
         self.distances = distances
+        self.nEdges = nEdges
 
-    def plot(self, edge_labels: bool = False):
+    def plot(self, filename: str, path: list = [], edge_labels: bool = False, show: bool = False):
         """
         Plots the graph.
 
         Parameters:
+            filename (str): the filename with which to save the figure (.pdf will be included).
+            path (list<int>): path to highlight.
             edge_labels (bool): if the distances should be displayed as edge labels.
-            nEdges (int): number of edges to be generated from each node.
+            show (bool): if the figure should be shown after saving to pdf.
         """
+
+        # sets matplotlib axes and title
+        _, ax = plt.subplots(figsize=(60,60))
+        ax.set(xlabel='x', ylabel='y', title=f'KNN Graph | n = {self.order()} | k = {self.nEdges}')
 
         # nodes' coordiates
         position = nx.get_node_attributes(self, 'pos')
 
         # draws the nodes (with labels) and edges
-        nx.draw_networkx(self, position, arrows=False, with_labels=True)
+        nx.draw_networkx(self, position, arrows=False, with_labels=True, node_size=900, ax=ax)
+
+        # displays x and y values
+        ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
 
         # if edge_labels is enabled
         if edge_labels:
@@ -117,8 +127,16 @@ class Graph(nx.Graph):
             # draws the labels
             nx.draw_networkx_edge_labels(self, position, edge_labels=labels)
 
-        # shows the figure
-        plt.show()
+        if path:
+            edges = [ ( path[i], path[i+1] ) for i in range(len(path)-1) ]
+            nx.draw_networkx_nodes(self, position, nodelist=path, node_color='r', node_size=900, edgecolors='black', ax=ax)
+            nx.draw_networkx_edges(self, position, edgelist=edges, edge_color='r', width=10, ax=ax)
+
+        # saves the fig to pdf
+        plt.savefig(filename + '.pdf')
+
+        # shows the figure if set
+        if show: plt.show()
 
 
     # PRIVATE TEMPLATE METHODS
@@ -262,7 +280,7 @@ class Graph(nx.Graph):
 
             # adds the adjacencies nodes to the "to_analyze" list and
             # filters nodes that have a lower score on history
-            to_analyze = [ node for node in to_analyze + adjacencies if validateFromHistory(node) ]
+            to_analyze = [ node for node in (to_analyze + adjacencies) if validateFromHistory(node) ]
 
         # if it got out of the loop, it means no path was found
         return []

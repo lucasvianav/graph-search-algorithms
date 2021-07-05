@@ -7,7 +7,9 @@ from graph import Graph
 no_vertices = [ 500, 5000, 10000 ]
 no_edges    = [ 3,   5,    7     ]
 
-with open(str(time()).replace('.','') + '.out', 'w') as f:
+filename = str(time()).replace('.','')
+
+with open(filename + '.out', 'w') as f:
     for n in no_vertices:
         root   = randint(0, n-1)
         target = randint(0, n-1)
