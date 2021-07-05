@@ -7,7 +7,7 @@ from graph import Graph
 no_vertices = [ 500, 5000, 10000 ]
 no_edges    = [ 3,   5,    7     ]
 
-filename = str(time()).replace('.','')
+filename = './output/' + str(time()).replace('.','')
 
 with open(filename + '.out', 'w') as f:
     for n in no_vertices:
@@ -63,4 +63,10 @@ with open(filename + '.out', 'w') as f:
             print(a, end='\n\n')
             print(f'A Star Search: {a_star_time}s')
             print(a_star, end='\n\n')
+
+            graph.plot(filename + '-breadth' , breadth)
+            graph.plot(filename + '-depth'   , depth)
+            graph.plot(filename + '-best'    , best)
+            graph.plot(filename + '-a'       , a)
+            graph.plot(filename + '-a_star'  , a_star)
 
