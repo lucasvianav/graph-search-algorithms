@@ -6,7 +6,7 @@ import networkx as nx
 import numpy as np
 
 
-class Graph:
+class Graph(nx.Graph):
     """
     This is a class for testing search algorithms for graphs.
 
@@ -26,8 +26,12 @@ class Graph:
             nEdges (int): number of edges to be generated from each node.
         """
 
+        super().__init__()
+
         # nodes' 2D coordinates (x, y)
-        nodes = [ ( nNodes*random(), nNodes*random() ) for _ in range(nNodes) ]
+        self.coordinates = [ ( nNodes*random(), nNodes*random() ) for _ in range(nNodes) ]
+
+        self.add_nodes_from([ ( i, { "pos": self.coordinates[i] } ) for i in range(nNodes) ])
 
         # adjacency matrix
         # (i rows and j columns are nodes and the [i][j]
@@ -57,7 +61,7 @@ class Graph:
                 float: the Euclidian Distance between the two nodes.
             """
 
-            return dist(nodes[i], nodes[j])
+            return dist(self.coordinates[i], self.coordinates[j])
 
         # generates the edges and calculates the distances
         for current_index in range(nNodes):
@@ -68,14 +72,25 @@ class Graph:
             ]
 
             # "nEdges" closest nodes
-            _nodes = [
-                ( node, distances[current_index][node] )
+            nodes = [
+                ( current_index, node, distances[current_index][node] )
                 for node in range(nNodes) if node != current_index
             ]
-            closest = sorted( _nodes, key=lambda n: n[1])[0:nEdges]
+
+            # closest_nodes = [ node for node in range(nNodes)[0:nEdges] if node != current_index ]
+            # closest_distances = [ distances[current_index][node] for node in closest_nodes ]
+
+            # for node in nodes:
+            #     if node[0] not in closest_nodes and node[1] < max(closest_distances):
+            #         index = closest_distances.index(max(closest_distances))
+            #         closest_nodes[index], closest_distances[index] = node
+
+            closest = sorted(nodes, key=lambda n: n[2])[0:nEdges]
+
+            self.add_weighted_edges_from(closest, 'distance')
 
             # for each of the closest nodes, create an edge between them
-            for node, distance in closest:
+            for _, node, distance in closest:
                 edges[current_index][node] = edges[node][current_index] = 1
                 weighted[current_index][node] = weighted[node][current_index] = distance
 
@@ -87,23 +102,15 @@ class Graph:
         self.distances = distances
         self.weighted  = weighted
 
-    def plot(self, layout: str = 'large'):
-        # generates the networkx graph and adds all nodes
-        graph = nx.Graph()
-        graph.add_nodes_from(range(self.nNodes))
+    def plot(self, edge_labels: bool = False):
+        pos=nx.get_node_attributes(self, 'pos')
 
-        # calculates rows, cols and weights
-        weighted = np.array(self.weighted)
-        rows, cols = np.where(weighted > 0)
-        values = [ weighted[i][j] for i, j in zip(rows, cols) ]
+        nx.draw_networkx(self, pos, arrows=False, with_labels=True)
 
-        # adds edges the graph
-        graph.add_weighted_edges_from(zip(rows, cols, values), 'distance')
+        if edge_labels:
+            labels = nx.get_edge_attributes(self,'distance')
+            nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
 
-        pos=nx.spring_layout(graph)
-        nx.draw_networkx(graph, pos, arrows=False, with_labels=True)
-        # labels = nx.get_edge_attributes(graph,'distance')
-        # nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
         plt.show()
 
         # style = {
