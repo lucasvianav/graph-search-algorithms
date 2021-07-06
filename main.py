@@ -78,25 +78,25 @@ for n in no_vertices:
             data['a_star']['distances'].append(graph.travelledDistance(a_star))
             data['a_star']['times'].append(a_star_time)
 
-        print(f"###  n = {n}  ###  k = {k}  ###', end='\n\n")
+        print(f"###  n = {n}  ###  k = {k}  ###", end='\n\n')
 
         print(f"Breadth First Search:")
         print(f" * Time: {avg('breadth', 'times'):.2e}s")
-        print(f" * Distance: {avg('breadth', 'distances'):.2e}', end='\n\n")
+        print(f" * Distance: {avg('breadth', 'distances'):.2e}", end='\n\n')
 
         print(f"Depth First Search:")
         print(f" * Time: {avg('depth', 'times'):.2e}s")
-        print(f" * Distance: {avg('depth', 'distances'):.2e}', end='\n\n")
+        print(f" * Distance: {avg('depth', 'distances'):.2e}", end='\n\n')
 
         print(f"Best First Search:")
         print(f" * Time: {avg('best', 'times'):.2e}s")
-        print(f" * Distance: {avg('best', 'distances'):.2e}', end='\n\n")
+        print(f" * Distance: {avg('best', 'distances'):.2e}", end='\n\n')
 
         print(f"A Search:")
         print(f" * Time: {avg('a', 'times'):.2e}s")
-        print(f" * Distance: {avg('a', 'distances'):.2e}', end='\n\n")
+        print(f" * Distance: {avg('a', 'distances'):.2e}", end='\n\n')
 
         print(f"A Star Search:")
         print(f" * Time: {avg('a_star', 'times'):.2e}s")
-        print(f" * Distance: {avg('a_star', 'distances'):.2e}', end='\n\n\n\n\n")
+        print(f" * Distance: {avg('a_star', 'distances'):.2e}", end='\n\n\n\n\n')
 
