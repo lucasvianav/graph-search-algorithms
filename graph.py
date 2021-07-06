@@ -95,7 +95,7 @@ class Graph(nx.Graph):
         self.distances = distances
         self.nEdges = nEdges
 
-    def plot(self, filename: str, path: list = [], edge_labels: bool = False, show: bool = False):
+    def plot(self, filename: str, path: list = [], edge_labels: bool = False, show: bool = False) -> None:
         """
         Plots the graph.
 
@@ -140,6 +140,23 @@ class Graph(nx.Graph):
 
         # cleaning up all figures
         plt.close('all')
+
+    def travelledDistance(self, path: list) -> float:
+        """
+        Calculates the distance travelled in a given path.
+
+        Parameters:
+            path (list<int>): path for which the distance is to be calculated.
+
+        Return value:
+            float: distance travelled.
+        """
+
+        travelled = 0.
+
+        for i in range(len(path)-1): travelled += self.distances[path[i]][path[i+1]]
+
+        return travelled
 
 
     # PRIVATE TEMPLATE METHODS
@@ -350,7 +367,7 @@ class Graph(nx.Graph):
             list<int>: path starting at "root" and ending at "target".
         """
 
-        return self.__a_search_template(root, target)
+        return self.__a_search_template(root, target, star=False)
 
     def aStarSearch(self, root: int, target: int):
         """
@@ -364,5 +381,5 @@ class Graph(nx.Graph):
             list<int>: path starting at "root" and ending at "target".
         """
 
-        return self.__a_search_template(root, target, True)
+        return self.__a_search_template(root, target, star=True)
 
