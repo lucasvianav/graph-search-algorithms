@@ -240,7 +240,7 @@ class Graph(nx.Graph):
             def heuristic(current_node):
                 return self.distances[target][current_node] * ( 1 if star else 10 )
 
-            return { "index": path[-1], "score": heuristic(path[-1]) + acc_cost, "path": path.copy() }
+            return { "index": path[-1], "score": heuristic(path[-1]) + acc_cost, "path": path.copy(), "acc_cost": acc_cost }
 
         # list of all paths enqued (the next node to
         # be analyzed is the last one on each path)
@@ -277,7 +277,8 @@ class Graph(nx.Graph):
 
             # gets the current node's adjacency list as node dicts
             adjacencies = [
-                generateNodeObject(self.distances[current['index']][node], current["path"] + [ node ])
+                generateNodeObject(self.distances[current['index']][node] + current['acc_cost'],
+                                   current["path"] + [ node ])
                 for node in adjacencies
             ]
 
